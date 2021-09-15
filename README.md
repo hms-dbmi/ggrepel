@@ -1,67 +1,40 @@
-ggrepel <img src="man/figures/logo.svg" width="181px" align="right" />
-============================================
-
-[![Build Status][bb]][githubactions] [![CRAN_Status_Badge][cb]][cran] [![CRAN_Downloads_Badge][db]][r-pkg]
-
-[bb]: https://github.com/slowkow/ggrepel/workflows/R-CMD-check/badge.svg
-[githubactions]: https://github.com/slowkow/ggrepel/actions?query=workflow%3AR-CMD-check
-
-[cb]: https://www.r-pkg.org/badges/version/ggrepel?color=blue
-[cran]: https://CRAN.R-project.org/package=ggrepel
-
-[db]: https://cranlogs.r-pkg.org/badges/ggrepel
-[r-pkg]: https://cranlogs.r-pkg.org
 
 Overview
 --------
 
-ggrepel provides geoms for [ggplot2] to repel overlapping text labels:
+`repel` helps repel overlapping text labels. It is forked from `ggrepel` to
+help in a non `ggplot2` context. Work in progress.
 
-[ggplot2]: https://ggplot2.tidyverse.org
 
-- `geom_text_repel()`
-- `geom_label_repel()`
-
-Text labels repel away from each other, away from data points, and away
-from edges of the plotting area.
-
-```r
-library(ggrepel)
-ggplot(mtcars, aes(wt, mpg, label = rownames(mtcars))) +
-  geom_text_repel() +
-  geom_point(color = 'red') +
-  theme_classic(base_size = 16)
-```
-<p align="center">
-<img src="https://imgur.com/ii9ova8.gif" />
-</p>
 
 Installation
 ------------
 
 ```r
-# The easiest way to get ggrepel is to install it from CRAN:
-install.packages("ggrepel")
 
-# Or get the the development version from GitHub:
-# install.packages("devtools")
-devtools::install_github("slowkow/ggrepel")
+# install.packages("remotes")
+remotes::install_github("hms-dbmi/repel")
 ```
 
 Usage
 -----
 
-See the [examples] page to learn more about how to use ggrepel in your project.
+```
+library(repel)
 
-[examples]: https://ggrepel.slowkow.com/articles/examples.html
+# plot points
+plot(mpg ~ wt, data = mtcars)
 
-Contributing
-------------
+# construct label_coords
+label_coords <- mtcars[, c('wt', 'mpg')]
+colnames(label_coords) <- c('x', 'y')
+label_coords$label <- row.names(mtcars)
 
-Please [submit an issue][issues] to report bugs or ask questions.
+# get coords of repelled labels
+repels <- repel_text(label_coords)
 
-Please contribute bug fixes or new features with a [pull request][pull] to this
-repository.
+# plot labels and segments
+segments(label_coords$x, label_coords$y, repels$x, repels$y, col = 'blue', lty=2)
+text(repels$x, repels$y, labels = repels$label)
+```
 
-[issues]: https://github.com/slowkow/ggrepel/issues
-[pull]: https://help.github.com/articles/using-pull-requests/

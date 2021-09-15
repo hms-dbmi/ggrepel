@@ -70,14 +70,14 @@ NULL
 #' @return The distance between two points.
 #' @noRd
 euclid <- function(a, b) {
-    .Call('_ggrepel_euclid', PACKAGE = 'ggrepel', a, b)
+    .Call(`_repel_euclid`, a, b)
 }
 
 #' Get the coordinates of the center of a box.
 #' @param b A box like \code{c(x1, y1, x2, y2)}
 #' @noRd
 centroid <- function(b, hjust, vjust) {
-    .Call('_ggrepel_centroid', PACKAGE = 'ggrepel', b, hjust, vjust)
+    .Call(`_repel_centroid`, b, hjust, vjust)
 }
 
 #' Find the intersections between a line and a rectangle.
@@ -85,7 +85,7 @@ centroid <- function(b, hjust, vjust) {
 #' @param r A rectangle like \code{c(x1, y1, x2, y2)}
 #' @noRd
 intersect_circle_rectangle <- function(c, r) {
-    .Call('_ggrepel_intersect_circle_rectangle', PACKAGE = 'ggrepel', c, r)
+    .Call(`_repel_intersect_circle_rectangle`, c, r)
 }
 
 #' Find the intersection between a line and a circle.
@@ -94,7 +94,7 @@ intersect_circle_rectangle <- function(c, r) {
 #' @param r The circle's radius
 #' @noRd
 intersect_line_circle <- function(p1, p2, r) {
-    .Call('_ggrepel_intersect_line_circle', PACKAGE = 'ggrepel', p1, p2, r)
+    .Call(`_repel_intersect_line_circle`, p1, p2, r)
 }
 
 #' Find the intersections between a line and a rectangle.
@@ -103,15 +103,15 @@ intersect_line_circle <- function(p1, p2, r) {
 #' @param b A rectangle like \code{c(x1, y1, x2, y2)}
 #' @noRd
 intersect_line_rectangle <- function(p1, p2, b) {
-    .Call('_ggrepel_intersect_line_rectangle', PACKAGE = 'ggrepel', p1, p2, b)
+    .Call(`_repel_intersect_line_rectangle`, p1, p2, b)
 }
 
 select_line_connection <- function(p1, b) {
-    .Call('_ggrepel_select_line_connection', PACKAGE = 'ggrepel', p1, b)
+    .Call(`_repel_select_line_connection`, p1, b)
 }
 
 approximately_equal <- function(x1, x2) {
-    .Call('_ggrepel_approximately_equal', PACKAGE = 'ggrepel', x1, x2)
+    .Call(`_repel_approximately_equal`, x1, x2)
 }
 
 #' Adjust the layout of a list of potentially overlapping boxes.
@@ -133,6 +133,6 @@ approximately_equal <- function(x1, x2) {
 #'   (defaults to 2000)
 #' @noRd
 repel_boxes2 <- function(data_points, point_size, point_padding_x, point_padding_y, boxes, xlim, ylim, hjust, vjust, force_push = 1e-7, force_pull = 1e-7, max_time = 0.1, max_overlaps = 10, max_iter = 2000L, direction = "both", verbose = 0L) {
-    .Call('_ggrepel_repel_boxes2', PACKAGE = 'ggrepel', data_points, point_size, point_padding_x, point_padding_y, boxes, xlim, ylim, hjust, vjust, force_push, force_pull, max_time, max_overlaps, max_iter, direction, verbose)
+    .Call(`_repel_repel_boxes2`, data_points, point_size, point_padding_x, point_padding_y, boxes, xlim, ylim, hjust, vjust, force_push, force_pull, max_time, max_overlaps, max_iter, direction, verbose)
 }
 
