@@ -38,4 +38,4 @@ text(label_coords$x, label_coords$y, labels = label_coords$label, col='lightgray
 text(repels$x, repels$y, labels = repels$label)
 ```
 
-![mtcars](repel.png)
+![mtcars](./repel.png)
