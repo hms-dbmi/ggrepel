@@ -11,6 +11,12 @@
 #' @param label_coords A data frame with columns 'x', 'y', and 'label'.
 #' @param xrange The range of x coordinates.
 #' @param yrange The range of y coordinates.
+#' @param xaxs the fraction to extend \code{xrange} on either side. Default is 0.04.
+#'   See \code{?par} parameter \code{xaxs}.
+#' @param yaxs the fraction to extend \code{yrange} on either side. Default is 0.04.
+#'   See \code{?par} parameter \code{yaxs}.
+#' @param mar Margins in order bottom, left, top, right in units of lines. Default is \code{par('mar')}.
+#' @param fontsize Font size in points. Default is 12.
 #' @param position Position adjustment, either as a string, or the result of
 #'  a call to a position adjustment function.
 #' @param nudge_x,nudge_y Horizontal and vertical adjustments to nudge the
@@ -52,6 +58,10 @@ repel_text <- function(
   label_coords,
   xrange = range(label_coords$x),
   yrange = range(label_coords$y),
+  xaxs = 0.04,
+  yaxs = 0.04,
+  mar = par('mar'),
+  fontsize = 12,
   box.padding = 0.25,
   point.padding = 1e-6,
   point.size = 1,
@@ -70,19 +80,23 @@ repel_text <- function(
 
   if (!is.na(seed)) set.seed(seed)
 
-  .pt <- 72.27 / 25.4
-  direction <- match.arg(direction)
-  box_padding_x <- grid::convertWidth(to_unit(box.padding), "npc", valueOnly = TRUE)
-  box_padding_y <- grid::convertHeight(to_unit(box.padding), "npc", valueOnly = TRUE)
+  # extend ranges +/- percentage
+  # see ?par xaxs
+  xext <- diff(xrange) * xaxs
+  yext <- diff(yrange) * yaxs
+
+  xrange <- xrange + c(-xext, xext)
+  yrange <- yrange + c(-yext, yext)
+
 
   data <- data.frame(
     x = scales::rescale(label_coords$x, c(0, 1), xrange),
     y = scales::rescale(label_coords$y, c(0, 1), yrange),
     label = label_coords$label,
-    size = 3.88,
     angle = 0,
     family = '',
     fontface = 1,
+    fontsize = fontsize,
     lineheight = 1.2,
     hjust = 0.5,
     vjust = 0.5,
@@ -91,22 +105,40 @@ repel_text <- function(
     nudge_y = nudge_y
   )
 
+  direction <- match.arg(direction)
+  box_padding_x <- grid::convertWidth(to_unit(box.padding), "npc", valueOnly = TRUE)
+  box_padding_y <- grid::convertHeight(to_unit(box.padding), "npc", valueOnly = TRUE)
+
+  # get limits/viewport from margins
+  vp <- grid::plotViewport(mar)
+  mar <- grid::unit(mar, 'lines')
+
+  xmar <- grid::convertWidth(mar[c(2, 4)], 'npc', valueOnly = TRUE)
+  ymar <- grid::convertHeight(mar[c(1, 3)], 'npc', valueOnly = TRUE)
+
+  xlims <- c(xmar[1], 1-xmar[2])
+  ylims <- c(ymar[1], 1-ymar[2])
+
   # Create a dataframe with x1 y1 x2 y2
   boxes <- lapply(seq_len(nrow(data)), function(i) {
     row <- data[i, , drop = FALSE]
     tg <- grid::textGrob(
       row$label,
-      row$x, row$y, default.units = "npc",
+      row$x,
+      row$y,
+      default.units = "npc",
       rot = row$angle,
       hjust = row$hjust,
       vjust = row$vjust,
+      vp = vp,
       gp = grid::gpar(
-        fontsize   = row$size * .pt,
+        fontsize   = row$fontsize,
         fontfamily = row$family,
         fontface   = row$fontface,
         lineheight = row$lineheight
       )
     )
+
     x1 <- grid::convertWidth(grid::grobX(tg, "west"), "npc", TRUE)
     x2 <- grid::convertWidth(grid::grobX(tg, "east"), "npc", TRUE)
     y1 <- grid::convertHeight(grid::grobY(tg, "south"), "npc", TRUE)
@@ -145,8 +177,8 @@ repel_text <- function(
     point_padding_x = point_padding,
     point_padding_y = point_padding,
     boxes           = boxes,
-    xlim            = c(0, 1),
-    ylim            = c(0, 1),
+    xlim            = xlims,
+    ylim            = ylims,
     hjust           = data$hjust,
     vjust           = data$vjust,
     force_push      = force * 1e-6,
@@ -158,9 +190,12 @@ repel_text <- function(
     verbose         = verbose
   )
 
+
   # scale back to coords
-  repel$label <- data$label
-  data$x <- scales::rescale(repel$x, xrange, c(0, 1))
-  data$y <- scales::rescale(repel$y, yrange, c(0, 1))
-  return(data[, c('x', 'y', 'label')])
+  data$too_many_overlaps <- repel$too_many_overlaps
+  data$x <- scales::rescale(repel$x, xrange, xlims)
+  data$y <- scales::rescale(repel$y, yrange, ylims)
+
+  keep_cols <- c('x', 'y', 'label', 'too_many_overlaps')
+  return(data[, keep_cols])
 }
