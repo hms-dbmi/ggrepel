@@ -32,6 +32,7 @@ label_coords$label <- row.names(mtcars)
 
 # get coords of repelled labels and exclude if too much overlap
 repels <- repel_text(label_coords)
+repels <- repels[!repels$too_many_overlaps, ]
 
 # plot labels and segments
 text(label_coords$x, label_coords$y, labels = label_coords$label, col='lightgray')
